@@ -26,6 +26,7 @@ export default class StepForm extends PureComponent {
   }
 
   render() {
+    // console.log('分布表单页面，匹配路由跳转')
     const { match, routerData, location } = this.props;
     return (
       <PageHeaderLayout
@@ -41,14 +42,18 @@ export default class StepForm extends PureComponent {
               <Step title="完成" />
             </Steps>
             <Switch>
-              {getRoutes(match.path, routerData).map(item => (
-                <Route
-                  key={item.key}
-                  path={item.path}
-                  component={item.component}
-                  exact={item.exact}
-                />
-              ))}
+              {getRoutes(match.path, routerData).map(item => {
+                // console.log('item',item)
+                return (
+                  <Route
+                    key={item.key}
+                    path={item.path}
+                    component={item.component}
+                    exact={item.exact}
+                  />
+                );
+              })}
+              {/*路由重定向*/}
               <Redirect exact from="/form/step-form" to="/form/step-form/info" />
               <Route render={NotFound} />
             </Switch>

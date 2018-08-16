@@ -60,6 +60,7 @@ export default function request(url, options) {
       };
       newOptions.body = JSON.stringify(newOptions.body);
     } else {
+      // 专门处理formData类型数据
       // newOptions.body is FormData
       newOptions.headers = {
         Accept: 'application/json',

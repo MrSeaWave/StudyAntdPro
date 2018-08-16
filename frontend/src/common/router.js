@@ -6,14 +6,18 @@ import { getMenuData } from './menu';
 
 let routerDataCache;
 
+// 判断model模块是否存在
 const modelNotExisted = (app, model) =>
   // eslint-disable-next-line
   !app._models.some(({ namespace }) => {
     return namespace === model.substring(model.lastIndexOf('/') + 1);
   });
 
+// 异步路由,动态加载，dynamicWrapper react 包装类。render 的时候才会调用，所以在调用getRouterData不会进入死循环,但是为什么不死循环还是有点迷
 // wrapper of dynamic
 const dynamicWrapper = (app, models, component) => {
+  // console.log('app',app,)
+  console.log('component1', models, component.toString());
   // register models
   models.forEach(model => {
     if (modelNotExisted(app, model)) {
@@ -21,10 +25,13 @@ const dynamicWrapper = (app, models, component) => {
       app.model(require(`../models/${model}`).default);
     }
   });
-
+  // 在webpack中关闭disableDynamicImport，
+  // 可以判断是require方法引入文件，还是import方法引入文件。两种情况下都会判断当前model是否已经加载。如未加载，则通过app实例注册/models/路径下对应的文件，
+  //否则永远是调用下面这个if
   // () => require('module')
   // transformed by babel-plugin-dynamic-import-node-sync
   if (component.toString().indexOf('.then(') < 0) {
+    console.log('%c require方法', 'color:red', routerDataCache);
     return props => {
       if (!routerDataCache) {
         routerDataCache = getRouterData(app);
@@ -35,6 +42,9 @@ const dynamicWrapper = (app, models, component) => {
       });
     };
   }
+
+  // 在webpack中关闭disableDynamicImport，
+  console.log('%c Loadable', 'color:blue');
   // () => import('module')
   return Loadable({
     loader: () => {
@@ -48,6 +58,7 @@ const dynamicWrapper = (app, models, component) => {
             ...props,
             routerData: routerDataCache,
           });
+        // return props => <Component {...props} routerData={routerDataCache} />;
       });
     },
     loading: () => {
@@ -56,7 +67,9 @@ const dynamicWrapper = (app, models, component) => {
   });
 };
 
+// 拆分出所有以menu+path为key的数据
 function getFlatMenuData(menus) {
+  console.log('menus', menus);
   let keys = {};
   menus.forEach(item => {
     if (item.children) {
@@ -68,11 +81,15 @@ function getFlatMenuData(menus) {
   });
   return keys;
 }
-
+/*
+1. 当路由的path能在menuData中找到匹配（即菜单项对应的路由），则获取菜单项中当前path的配置menuItem；
+2. 获取当前path的路由配置router；
+3. 返回最新路由信息，name、authority、hideInBreadcrumb三个属性如果router中没有配置，则取菜单项中的配置。
+*/
 export const getRouterData = app => {
   const routerConfig = {
     '/': {
-      component: dynamicWrapper(app, ['user', 'login'], () => import('../layouts/BasicLayout')),
+      component: dynamicWrapper(app, ['user', 'login'], () => require('../layouts/BasicLayout')),
     },
     '/dashboard/analysis': {
       component: dynamicWrapper(app, ['chart'], () => import('../routes/Dashboard/Analysis')),
@@ -176,21 +193,26 @@ export const getRouterData = app => {
   };
   // Get name from ./menu.js or just set it in the router data.
   const menuData = getFlatMenuData(getMenuData());
+  console.log('menuData', menuData);
 
   // Route configuration data
   // eg. {name,authority ...routerConfig }
   const routerData = {};
   // The route matches the menu
+
+  // routerConfig中的key指带路由链接
   Object.keys(routerConfig).forEach(path => {
     // Regular match item name
     // eg.  router /user/:id === /user/chen
     const pathRegexp = pathToRegexp(path);
     const menuKey = Object.keys(menuData).find(key => pathRegexp.test(`${key}`));
+    console.log('menuKey', menuKey);
     let menuItem = {};
     // If menuKey is not empty
     if (menuKey) {
       menuItem = menuData[menuKey];
     }
+    console.log('menuITEM', menuItem);
     let router = routerConfig[path];
     // If you need to configure complex parameter routing,
     // https://github.com/ant-design/ant-design-pro-site/blob/master/docs/router-and-nav.md#%E5%B8%A6%E5%8F%82%E6%95%B0%E7%9A%84%E8%B7%AF%E7%94%B1%E8%8F%9C%E5%8D%95
@@ -203,5 +225,6 @@ export const getRouterData = app => {
     };
     routerData[path] = router;
   });
+  console.log('routerData', routerData);
   return routerData;
 };

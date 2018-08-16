@@ -141,6 +141,9 @@ function getRenderArr(routes) {
  * @param {string} path
  * @param {routerData} routerData
  */
+/*
+*    用于获取当前路径对应的路由数据
+* */
 export function getRoutes(path, routerData) {
   let routes = Object.keys(routerData).filter(
     routePath => routePath.indexOf(path) === 0 && routePath !== path

@@ -1,5 +1,6 @@
 import { isUrl } from '../utils/utils';
 
+// 简单的munu目录 适配路由
 const menuData = [
   {
     name: 'dashboard',
@@ -156,7 +157,9 @@ const menuData = [
   },
 ];
 
+// menu--->menu+path
 function formatter(data, parentPath = '/', parentAuthority) {
+  console.log('data', data);
   return data.map(item => {
     let { path } = item;
     if (!isUrl(path)) {
