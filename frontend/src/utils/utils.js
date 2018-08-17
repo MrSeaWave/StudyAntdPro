@@ -162,6 +162,7 @@ export function getRoutes(path, routerData) {
       path: `${path}${item}`,
     };
   });
+  console.log('renderRoutes',renderRoutes)
   return renderRoutes;
 }
 

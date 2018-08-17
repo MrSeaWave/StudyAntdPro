@@ -149,8 +149,10 @@ export default class BasicLayout extends React.PureComponent {
   getBaseRedirect = () => {
     // According to the url parameter to redirect
     // 这里是重定向的,重定向到 url 的 redirect 参数所示地址
+    // http://nodejs.cn/api/url.html#url_url_searchparams
     const urlParams = new URL(window.location.href);
 
+    //获取表示URL查询参数的URLSearchParams对象。该属性是只读的；使用url.search设置来替换URL的整个查询参数。请打开URLSearchParams文档来查看更多细节
     const redirect = urlParams.searchParams.get('redirect');
     // Remove the parameters in the url
     if (redirect) {
@@ -159,6 +161,7 @@ export default class BasicLayout extends React.PureComponent {
     } else {
       const { routerData } = this.props;
       // get the first authorized route path in routerData
+      // 找到寻找重定向中的第一个有权限的URL
       const authorizedPath = Object.keys(routerData).find(
         item => check(routerData[item].authority, item) && item !== '/'
       );
