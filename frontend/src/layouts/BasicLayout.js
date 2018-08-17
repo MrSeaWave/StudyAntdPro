@@ -113,6 +113,7 @@ export default class BasicLayout extends React.PureComponent {
   }
 
   componentDidMount() {
+    // https://www.npmjs.com/package/enquire-js 适配手机
     this.enquireHandler = enquireScreen(mobile => {
       this.setState({
         isMobile: mobile,
@@ -297,9 +298,10 @@ export default class BasicLayout extends React.PureComponent {
         </Layout>
       </Layout>
     );
-
+// TODO ContainerQuery:https://www.npmjs.com/package/react-container-query
     return (
       <DocumentTitle title={this.getPageTitle()}>
+        {/*标签页的标题*/}
         <ContainerQuery query={query}>
           {params => <div className={classNames(params)}>{layout}</div>}
         </ContainerQuery>
