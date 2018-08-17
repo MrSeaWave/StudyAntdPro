@@ -105,7 +105,9 @@ export function digitUppercase(n) {
     .replace(/(零.)+/g, '零')
     .replace(/^整$/, '零元整');
 }
-
+/*
+* 判断几层路由
+* */
 function getRelation(str1, str2) {
   if (str1 === str2) {
     console.warn('Two path are equal!'); // eslint-disable-line
@@ -142,14 +144,16 @@ function getRenderArr(routes) {
  * @param {routerData} routerData
  */
 /*
-*    用于获取当前路径对应的路由数据
+*    用于获取当前路径一级路由对应的路由数据
 * */
 export function getRoutes(path, routerData) {
   let routes = Object.keys(routerData).filter(
     routePath => routePath.indexOf(path) === 0 && routePath !== path
   );
+  console.log('ROUTES,routes',routes)
   // Replace path to '' eg. path='user' /user/name => name
   routes = routes.map(item => item.replace(path, ''));
+  console.log('replaceroutes',routes)
   // Get the route to be rendered to remove the deep rendering
   const renderArr = getRenderArr(routes);
   // Conversion and stitching parameters
